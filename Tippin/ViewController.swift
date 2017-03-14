@@ -20,9 +20,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         let defaults = NSUserDefaults.standardUserDefaults()
-        let intValue = defaults.integerForKey("tip_percentage_index");
-        print(intValue)
+        tipControl.selectedSegmentIndex = defaults.integerForKey("tip_percentage_index")
         
+        billField.becomeFirstResponder()
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.billField.text = String(format: "%.2f", defaults.doubleForKey("bill_amount"))
+            self.calculateTipInternal()
+        }
         // Do any additional setup after loading the view, typically from a nib.
     }
     
@@ -32,21 +37,6 @@ class ViewController: UIViewController {
         tipControl.selectedSegmentIndex = defaults.integerForKey("tip_percentage_index");
         calculateTipInternal()
     }
-    
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("view will disappear")
-    }
-    
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("view did disappear")
-    }
-    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -58,6 +48,12 @@ class ViewController: UIViewController {
     }
 
     @IBAction func calculateTip(sender: AnyObject) {
+        
+        let bill = Double(billField.text!) ?? 0
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setDouble(bill, forKey: "bill_amount");
+        defaults.synchronize();
+        
         calculateTipInternal();
     }
     
